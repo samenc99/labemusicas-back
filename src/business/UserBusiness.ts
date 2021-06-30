@@ -1,5 +1,5 @@
 import {UserDatabase} from "../data/UserDatabase";
-import {UserData, UserDTO} from "../model/User";
+import {UserData, UserDTO, UserLoginDTO} from "../model/User";
 import validateEmail from "../services/validateEmail";
 import {CustomError} from "../errors/CustomError";
 import {HashManager} from "../services/HashManager";
@@ -26,24 +26,22 @@ export class UserBusiness{
     if(mock?.idGenerator)this.idGenerator = mock.idGenerator
   }
 
-  signup = async(
-    input : UserDTO,
-  ):Promise<string>=>{
+  signup = async(input : UserDTO):Promise<string>=>{
     try{
-      let message = 'Preencha os campos: '
+      let message = 'Preencha os campos:'
       if(!input.name || typeof input.name!=='string'){
         message+="'name' "
       }
       if(!input.nickname || typeof input.nickname!=='string'){
-        message+="'nickname' "
+        message+=" 'nickname'"
       }
       if(!validateEmail(input.email)){
-        message+="'email' "
+        message+=" 'email'"
       }
       if(!input.password || typeof input.password!=='string' || input.password.length<6){
-        message+="'password'(min 6 characters)"
+        message+=" 'password'(min 6 characters)"
       }
-      if(message.length>20){
+      if(message.length>19){
         throw new CustomError(400, message)
       }
 
@@ -69,4 +67,44 @@ export class UserBusiness{
       )
     }
   }
+
+  login = async(input : UserLoginDTO):Promise<string>=>{
+    try{
+      let message = 'Preencha os campos:'
+      let key : string
+      if(!input.password || typeof input.password!=="string" || input.password.length<6){
+        message+=" 'password'(min 6 characters)"
+      }
+      if(!input.emailOrNickname || typeof input.emailOrNickname!=="string"){
+        message+=" 'email or nickname'"
+      }
+      if(message.length>19){
+        throw new CustomError(400, message)
+      }
+
+      if(validateEmail(input.emailOrNickname))key = 'email'
+      else key = 'nickname'
+
+      const [user] = await this.userDatabase.selectGeneric(
+        ['id', 'password'], {[key]: input.emailOrNickname}
+      )
+
+      if(!user){
+        throw new CustomError(404, 'E-mail or nickname not found')
+      }
+
+      if(!this.hashManager.compareHash(input.password, user.password)){
+        throw new CustomError(401, 'Password incorrect')
+      }
+
+      return this.authenticator.tokenGenerator({id: user.id})
+
+    }catch (err){
+      if(err.sqlMessage){
+        throw new CustomError(500, 'Internal server error')
+      }
+      throw new CustomError(err.statusCode || 500, err.message || 'Internal server error')
+    }
+  }
+
 }

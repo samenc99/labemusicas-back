@@ -12,3 +12,8 @@ export type UserData = {
   nickname : string,
   password : string
 }
+
+export type UserLoginDTO = {
+  emailOrNickname : any
+  password : any
+}
