@@ -41,7 +41,7 @@ export class UserBusiness{
         message+="'email' "
       }
       if(!input.password || typeof input.password!=='string' || input.password.length<6){
-        message+="'password'(min 6 characters) "
+        message+="'password'(min 6 characters)"
       }
       if(message.length>20){
         throw new CustomError(400, message)

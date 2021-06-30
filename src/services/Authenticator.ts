@@ -5,7 +5,7 @@ export type AuthenticationData = {
 }
 
 export class Authenticator{
-  tokenGenerator = (payload: AuthenticationData) => {
+  tokenGenerator = (payload: AuthenticationData) : string=> {
     return sign(payload, process.env.JWT_KEY!, {
       expiresIn: process.env.ACCESS_TOKEN_EXPIRES_IN,
     });
