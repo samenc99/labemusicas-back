@@ -15,7 +15,7 @@ const userBusiness = new UserBusiness(
 )
 
 describe('UserBusiness',()=>{
-  describe('login',()=>{
+  describe('signup',()=>{
     const input : UserDTO = {
       name : 'samuel',
       password : '123456',
@@ -27,7 +27,7 @@ describe('UserBusiness',()=>{
     test('Error name', async()=>{
       expect.assertions(1)
       try{
-        await userBusiness.login({...input, name:''})
+        await userBusiness.signup({...input, name:''})
       }catch (err){
         expect(err.message).toBe(message+"'name' ")
       }
@@ -35,7 +35,7 @@ describe('UserBusiness',()=>{
     test('Error password', async()=>{
       expect.assertions(1)
       try{
-        await userBusiness.login({...input, password:'12345'})
+        await userBusiness.signup({...input, password:'12345'})
       }catch (err){
         expect(err.message).toBe(message+"'password'(min 6 characters)")
       }
@@ -43,7 +43,7 @@ describe('UserBusiness',()=>{
     test('Error nickname', async()=>{
       expect.assertions(1)
       try{
-        await userBusiness.login({...input, nickname:''})
+        await userBusiness.signup({...input, nickname:''})
       }catch (err){
         expect(err.message).toBe(message+"'nickname' ")
       }
@@ -51,7 +51,7 @@ describe('UserBusiness',()=>{
     test('Error email', async()=>{
       expect.assertions(1)
       try{
-        await userBusiness.login({...input, email:'sam@gm'})
+        await userBusiness.signup({...input, email:'sam@gm'})
       }catch (err){
         expect(err.message).toBe(message+"'email' ")
       }
@@ -59,7 +59,7 @@ describe('UserBusiness',()=>{
     test('Success', async()=>{
       expect.assertions(1)
       try{
-        const token = await userBusiness.login(input)
+        const token = await userBusiness.signup(input)
         expect(token).toBe('token_mock')
       }catch (err){
         console.log(err.message)

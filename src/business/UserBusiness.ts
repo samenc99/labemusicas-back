@@ -26,7 +26,7 @@ export class UserBusiness{
     if(mock?.idGenerator)this.idGenerator = mock.idGenerator
   }
 
-  login = async(
+  signup = async(
     input : UserDTO,
   ):Promise<string>=>{
     try{
