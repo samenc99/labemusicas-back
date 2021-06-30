@@ -6,23 +6,29 @@ import {HashManager} from "../services/HashManager";
 import {IdGenerator} from "../services/IdGenerator";
 import {Authenticator,AuthenticationData} from "../services/Authenticator";
 
+type Mock = {
+  userDatabase ?: any,
+  idGenerator ?: any,
+  authenticator ?: any,
+  hashManager ?: any
+}
+
 export class UserBusiness{
-  private userDatabase = new UserDatabase()
-  private idGenerator = new IdGenerator().id()
-  private tokenGenerator = (payload : AuthenticationData)=> new Authenticator().tokenGenerator(payload)
-  private hashManager = new HashManager()
+  private readonly userDatabase = new UserDatabase()
+  private readonly idGenerator = new IdGenerator()
+  private readonly authenticator = new Authenticator()
+  private readonly hashManager = new HashManager()
+
+  constructor(mock ?: Mock) {
+    if(mock?.userDatabase)this.userDatabase = mock.userDatabase
+    if(mock?.hashManager)this.hashManager = mock.hashManager
+    if(mock?.authenticator)this.authenticator = mock.authenticator
+    if(mock?.idGenerator)this.idGenerator = mock.idGenerator
+  }
 
   login = async(
     input : UserDTO,
-    userDatabase?:any,
-    idGenerator?: any,
-    tokenGenerator?:any,
-    hashManager?:any
   ):Promise<string>=>{
-    if(userDatabase)this.userDatabase = userDatabase
-    if(idGenerator)this.idGenerator = idGenerator
-    if(tokenGenerator)this.tokenGenerator = tokenGenerator
-    if(hashManager)this.hashManager = hashManager
     try{
       let message = 'Preencha os campos: '
       if(!input.name || typeof input.name!=='string'){
@@ -44,11 +50,11 @@ export class UserBusiness{
       const userData : UserData= {
         ...input,
         password: this.hashManager.createHash(input.password),
-        id: this.idGenerator
+        id: this.idGenerator.id()
       }
 
       await this.userDatabase.insertGeneric(userData)
-      return this.tokenGenerator({id: userData.id})
+      return this.authenticator.tokenGenerator({id: userData.id})
 
     }catch (err){
       if(err.sqlMessage?.includes('Duplicate entry')){
