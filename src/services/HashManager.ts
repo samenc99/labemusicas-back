@@ -1,7 +1,7 @@
 import { compareSync, genSaltSync, hashSync } from "bcryptjs";
 
 
-class HashManager{
+export class HashManager{
   createHash = (plainText: string) => {
     const salt = genSaltSync(Number(process.env.BCRYPT_COST));
 
@@ -12,6 +12,4 @@ class HashManager{
     return compareSync(plainText, cypherText);
   };
 }
-
-export default new HashManager()
 

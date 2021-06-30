@@ -5,7 +5,7 @@ dotenv.config()
 export default class Database{
   constructor(private readonly tableName : string){}
 
-  public static connection = knex({
+  protected static connection = knex({
     client: 'mysql',
     connection: {
       host: process.env.DB_HOST,

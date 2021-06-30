@@ -1,5 +1,7 @@
 import { v4 as uuid} from 'uuid'
 
-export const idGenerator = ():string => {
-    return uuid()
+export class IdGenerator{
+    id = ():string => {
+        return uuid()
+    }
 }

@@ -1,0 +1,8 @@
+create table labemusicas_user(
+  id varchar(255) primary key ,
+  name varchar(255) not null ,
+  email varchar(255) unique not null ,
+  nickname varchar(255) unique not null ,
+  password varchar(255) not null
+);
+
