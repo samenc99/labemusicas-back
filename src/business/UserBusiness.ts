@@ -76,7 +76,7 @@ export class UserBusiness{
         message+=" 'password'(min 6 characters)"
       }
       if(!input.emailOrNickname || typeof input.emailOrNickname!=="string"){
-        message+=" 'email or nickname'"
+        message+=" 'emailOrNickname'"
       }
       if(message.length>19){
         throw new CustomError(400, message)

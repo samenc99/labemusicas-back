@@ -83,7 +83,7 @@ describe('UserBusiness',()=>{
       try{
         await userBusiness.login({...inputEmail, emailOrNickname:''})
       }catch (err){
-        expect(err.message).toBe(message+" 'email or nickname'")
+        expect(err.message).toBe(message+" 'emailOrNickname'")
       }
     })
 
