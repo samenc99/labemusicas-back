@@ -30,7 +30,7 @@ export class UserBusiness{
     try{
       let message = 'Preencha os campos:'
       if(!input.name || typeof input.name!=='string'){
-        message+="'name' "
+        message+=" 'name'"
       }
       if(!input.nickname || typeof input.nickname!=='string'){
         message+=" 'nickname'"
