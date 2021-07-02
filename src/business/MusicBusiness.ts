@@ -91,4 +91,28 @@ export class MusicBusiness{
     }
   }
 
+  getMusic = async(token : any, id : any):Promise<Music>=>{
+    try{
+      const payload = this.authenticator.tokenValidate(token)
+      if(!id || typeof id !=="string"){
+        throw new CustomError(400, 'Id is required')
+      }
+      const [musicData] = await this.musicDatabase.selectGeneric(
+        '*', {id: id, user_id: payload.id}
+      )
+      if(musicData){
+        throw new CustomError(404,'Music not found')
+      }
+      return {
+        ...musicData,
+        genre : JSON.parse(musicData.genre)
+      }
+    }catch (err){
+      if(err.sqlMessage){
+        throw new CustomError(500, 'Internal server error')
+      }
+      throw new CustomError(err.statusCode || 500, err.message)
+    }
+  }
+
 }
