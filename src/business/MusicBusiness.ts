@@ -115,13 +115,22 @@ export class MusicBusiness{
     }
   }
 
-  deleteMusic = async(token : any, id : any):Promise<void>=>{
+  deleteMusics = async(token : any, ids : any):Promise<void>=>{
     try{
-      const payload = this.authenticator.tokenValidate(id)
-      if(!id || typeof id!=='string'){
-        throw new CustomError(400, 'Id is required')
+      const payload = this.authenticator.tokenValidate(token)
+      if(!ids || !Array.isArray(ids)){
+        throw new CustomError(400, 'Ids(array) is required')
       }
-      await this.musicDatabase.deleteGeneric({id: id, user_id:payload.id})
+      for(const id of ids){
+        if(typeof id !=='string'){
+          throw new CustomError(400, 'Ids is required as string array')
+        }
+      }
+
+      for(const id of ids){
+        await this.musicDatabase.deleteGeneric({id:id, user_id:payload.id})
+      }
+
     }catch (err){
       if(err.sqlMessage){
         throw new CustomError(500, 'Internal server error')
