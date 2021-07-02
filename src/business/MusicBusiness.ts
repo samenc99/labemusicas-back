@@ -100,7 +100,7 @@ export class MusicBusiness{
       const [musicData] = await this.musicDatabase.selectGeneric(
         '*', {id: id, user_id: payload.id}
       )
-      if(musicData){
+      if(!musicData){
         throw new CustomError(404,'Music not found')
       }
       return {
