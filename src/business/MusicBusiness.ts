@@ -1,9 +1,7 @@
 import {MusicDatabase} from "../data/MusicDatabase";
-import {MusicData, MusicDTO} from "../model/Music";
-import {UserDatabase} from "../data/UserDatabase";
+import {Music, MusicData, MusicDTO} from "../model/Music";
 import {IdGenerator} from "../services/IdGenerator";
 import {Authenticator} from "../services/Authenticator";
-import {HashManager} from "../services/HashManager";
 import {CustomError} from "../errors/CustomError";
 
 type Mock = {
@@ -23,7 +21,7 @@ export class MusicBusiness{
     if(mock?.idGenerator)this.idGenerator = mock.idGenerator
   }
 
-  createMusic = async(input : MusicDTO, token : string):Promise<void>=>{
+  createMusic = async(input : MusicDTO, token : any):Promise<void>=>{
     try{
       let message = 'Preencha os campos:'
       const payload = this.authenticator.tokenValidate(token)
@@ -75,7 +73,40 @@ export class MusicBusiness{
       else if(err.message.includes('jwt')){
         throw new CustomError(400, 'Token error, please try again')
       }
-      throw new CustomError(err.statusCode || 500, err.message || 'Internal server error')
+      throw new CustomError(err.statusCode || 500, err.message)
     }
   }
+
+  getMusics = async(token : any, id?: any):Promise<Music[]>=>{
+    try{
+      const payload = this.authenticator.tokenValidate(token)
+      const musicsData = await this.musicDatabase.selectGeneric('*', {user_id:payload.id})
+      if(musicsData.length===0){
+        throw new CustomError(404, "User doesn't have songs")
+      }
+
+      return musicsData.map(musicData =>{
+        return{
+          ...musicData,
+          genre : JSON.parse(musicData.genre)
+        }
+      })
+
+    }catch (err){
+      if(err.sqlMessage){
+        throw new CustomError(500, 'Internal server error')
+      }
+      else if(err.message.includes('jwt expired')){
+        throw new CustomError(401, 'Token expired')
+      }
+      else if(err.message.includes('jwt invalid')){
+        throw new CustomError(400, 'Token invalid')
+      }
+      else if(err.message.includes('jwt')){
+        throw new CustomError(400, 'Token error, please try again')
+      }
+      throw new CustomError(err.statusCode || 500, err.message)
+    }
+  }
+
 }
