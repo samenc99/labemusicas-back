@@ -64,15 +64,6 @@ export class MusicBusiness{
       if(err.sqlMessage){
         throw new CustomError(500, 'Internal server error')
       }
-      else if(err.message.includes('jwt expired')){
-        throw new CustomError(401, 'Token expired')
-      }
-      else if(err.message.includes('jwt invalid')){
-        throw new CustomError(400, 'Token invalid')
-      }
-      else if(err.message.includes('jwt')){
-        throw new CustomError(400, 'Token error, please try again')
-      }
       throw new CustomError(err.statusCode || 500, err.message)
     }
   }
@@ -95,15 +86,6 @@ export class MusicBusiness{
     }catch (err){
       if(err.sqlMessage){
         throw new CustomError(500, 'Internal server error')
-      }
-      else if(err.message.includes('jwt expired')){
-        throw new CustomError(401, 'Token expired')
-      }
-      else if(err.message.includes('jwt invalid')){
-        throw new CustomError(400, 'Token invalid')
-      }
-      else if(err.message.includes('jwt')){
-        throw new CustomError(400, 'Token error, please try again')
       }
       throw new CustomError(err.statusCode || 500, err.message)
     }

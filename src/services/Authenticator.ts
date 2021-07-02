@@ -1,4 +1,5 @@
 import { sign, verify } from "jsonwebtoken";
+import {CustomError} from "../errors/CustomError";
 
 export type AuthenticationData = {
   id : string
@@ -12,9 +13,19 @@ export class Authenticator{
   };
 
   tokenValidate = (token:string):AuthenticationData => {
-    return verify(
-      token,
-      String(process.env.JWT_KEY)
-    ) as AuthenticationData
+    try{
+      return verify(
+        token,
+        String(process.env.JWT_KEY)
+      ) as AuthenticationData
+    }catch (err){
+      if(err.message.includes('jwt expired')){
+        throw new CustomError(401, 'Token expired')
+      }
+      else if(err.message.includes('jwt invalid')){
+        throw new CustomError(400, 'Token invalid')
+      }
+      throw new CustomError(400, 'Token error, please try again')
+    }
   }
 }
