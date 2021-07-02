@@ -115,4 +115,19 @@ export class MusicBusiness{
     }
   }
 
+  deleteMusic = async(token : any, id : any):Promise<void>=>{
+    try{
+      const payload = this.authenticator.tokenValidate(id)
+      if(!id || typeof id!=='string'){
+        throw new CustomError(400, 'Id is required')
+      }
+      await this.musicDatabase.deleteGeneric({id: id, user_id:payload.id})
+    }catch (err){
+      if(err.sqlMessage){
+        throw new CustomError(500, 'Internal server error')
+      }
+      throw new CustomError(err.statusCode || 500, err.message)
+    }
+  }
+
 }

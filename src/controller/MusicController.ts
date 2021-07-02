@@ -31,5 +31,16 @@ export class MusicController {
     }
   }
 
+  deleteMusic = async (req: Request, res: Response): Promise<any> => {
+    try {
+      await this.musicBusiness.deleteMusic(req.headers.authorization, req.params.id)
+      res.status(200).send()
+    } catch (err) {
+      res.status(err.statusCode).send({message: err.message})
+    }
+  }
+
 }
+
+
 
