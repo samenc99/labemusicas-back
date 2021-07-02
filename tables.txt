@@ -6,3 +6,14 @@ create table labemusicas_user(
   password varchar(255) not null
 );
 
+create table labemusicas_music (
+  id varchar(255) primary key ,
+  title varchar(255) not null ,
+  author varchar(255) not null ,
+  date timestamp default now(),
+  file text not null,
+  album varchar(255) not null ,
+  genre text not null,
+  user_id varchar(255) not null ,
+  foreign key (user_id) references labemusicas_user(id)
+);
