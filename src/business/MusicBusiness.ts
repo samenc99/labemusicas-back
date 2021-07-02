@@ -68,7 +68,7 @@ export class MusicBusiness{
     }
   }
 
-  getMusics = async(token : any, id?: any):Promise<Music[]>=>{
+  getMusics = async(token : any):Promise<Music[]>=>{
     try{
       const payload = this.authenticator.tokenValidate(token)
       const musicsData = await this.musicDatabase.selectGeneric('*', {user_id:payload.id})
