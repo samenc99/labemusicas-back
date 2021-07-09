@@ -6,7 +6,7 @@
   "author": "samenc99 <mateus.enc@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "start": "tsc && node ./build/index.js",
+    "start": "tsc && node ./build/src/index.js",
     "dev": "ts-node-dev --transpile-only --ignore-watch node_modules ./src/index.ts"
   },
   "devDependencies": {
