@@ -1,5 +1,5 @@
 import {MusicDatabase} from "../data/MusicDatabase";
-import {GetMusicQuery, Music, MusicData, MusicDTO} from "../model/Music";
+import {GetMusicQuery, Music, MusicData, MusicDTO, ShortMusic} from "../model/Music";
 import {IdGenerator} from "../services/IdGenerator";
 import {Authenticator} from "../services/Authenticator";
 import {CustomError} from "../errors/CustomError";
@@ -68,14 +68,16 @@ export class MusicBusiness{
     }
   }
 
-  getMusics = async(token : any, query : GetMusicQuery):Promise<Music[]>=>{
+  getMusics = async(token : any, query : GetMusicQuery):Promise<ShortMusic[]>=>{
     try{
       const payload = this.authenticator.tokenValidate(token)
       query.album = query.album || ''
       query.author = query.author || ''
       query.title = query.title || ''
       const musicsData = await this.musicDatabase
-        .selectGeneric('*', {user_id:payload.id})
+        .selectGeneric(
+          ['title','author','id', 'album'], {user_id:payload.id}
+        )
         .where('album', 'like', `%${query.album}%`)
         .andWhere('author', 'like', `%${query.author}%`)
         .andWhere('title', 'like', `%${query.title}%`)
@@ -83,12 +85,7 @@ export class MusicBusiness{
         throw new CustomError(404, "Songs not found")
       }
 
-      return musicsData.map(musicData =>{
-        return{
-          ...musicData,
-          genre : JSON.parse(musicData.genre)
-        }
-      })
+      return musicsData
 
     }catch (err){
       if(err.sqlMessage){

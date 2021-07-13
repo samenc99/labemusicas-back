@@ -29,6 +29,13 @@ export type Music = {
   user_id : string
 }
 
+export type ShortMusic = {
+  id : string,
+  title : string,
+  author : string,
+  album : string
+}
+
 export type GetMusicQuery = {
   title? : string,
   author? : string,
