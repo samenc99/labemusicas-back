@@ -15,7 +15,7 @@ export class MusicController {
 
   getMusics = async (req: Request, res: Response): Promise<any> => {
     try {
-      const musics = await this.musicBusiness.getMusics(req.headers.authorization)
+      const musics = await this.musicBusiness.getMusics(req.headers.authorization, req.query)
       res.status(200).send({musics})
     } catch (err) {
       res.status(err.statusCode).send({message: err.message})

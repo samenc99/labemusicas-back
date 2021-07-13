@@ -28,3 +28,9 @@ export type Music = {
   genre : string[],
   user_id : string
 }
+
+export type GetMusicQuery = {
+  title? : string,
+  author? : string,
+  album? : string
+}
