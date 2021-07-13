@@ -1,5 +1,6 @@
 export default function validateEmail (email:string): boolean{
-  if(email==='' ||
+  if(!email ||
+    email==='' ||
     email.indexOf('@')===-1 ||
     email.indexOf('.')===-1 ||
     email.indexOf(' ')!==-1 ||
