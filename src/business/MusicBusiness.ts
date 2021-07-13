@@ -1,5 +1,5 @@
 import {MusicDatabase} from "../data/MusicDatabase";
-import {GetMusicQuery, Music, MusicData, MusicDTO, ShortMusic} from "../model/Music";
+import {GetMusicQuery, Music, MusicData, musicDataToMusic, MusicDTO, ShortMusic} from "../model/Music";
 import {IdGenerator} from "../services/IdGenerator";
 import {Authenticator} from "../services/Authenticator";
 import {CustomError} from "../errors/CustomError";
@@ -107,10 +107,7 @@ export class MusicBusiness{
       if(!musicData){
         throw new CustomError(404,'Music not found')
       }
-      return {
-        ...musicData,
-        genre : JSON.parse(musicData.genre)
-      }
+      return musicDataToMusic(musicData)
     }catch (err){
       if(err.sqlMessage){
         throw new CustomError(500, 'Internal server error')

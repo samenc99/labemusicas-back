@@ -26,7 +26,7 @@ export type Music = {
   file : string,
   album : string,
   genre : string[],
-  user_id : string
+  userId : string
 }
 
 export type ShortMusic = {
@@ -40,4 +40,17 @@ export type GetMusicQuery = {
   title? : string,
   author? : string,
   album? : string
+}
+
+export const musicDataToMusic = (musicData : MusicData):Music=>{
+  return {
+    genre : JSON.parse(musicData.genre),
+    userId : musicData.user_id,
+    album : musicData.album,
+    author: musicData.author,
+    date: musicData.date,
+    title: musicData.title,
+    id: musicData.id,
+    file: musicData.file
+  }
 }
