@@ -60,6 +60,15 @@ export class MusicController {
     }
   }
 
+  getAlbums = async (req: Request, res: Response): Promise<any> => {
+    try {
+      const albums = await this.musicBusiness.getAlbums(req.headers.authorization)
+      res.status(200).send({albums})
+    } catch (err) {
+      res.status(err.statusCode).send({message: err.message})
+    }
+  }
+
 }
 
 

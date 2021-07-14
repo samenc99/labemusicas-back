@@ -176,18 +176,17 @@ export class MusicBusiness{
         throw new CustomError(404, 'Albums not found')
       }
       const albums : Album[] = []
-      albums.push({album: albumsData[0].album, quantityMusics: 0})
-      let i=0
-      let indexEnd : number = 0
-      albumsData.forEach((albumData, index)=>{ //contar quantas vezes album aparece
-        if(albumData!==albums[albums.length-1].album){
-          albums[albums.length-1].quantityMusics = index - i
+      let i =0, endIndex = 0
+      let currentAlbum : string= albumsData[0].album
+      albumsData.forEach((album,index)=>{
+        if(currentAlbum!==album.album){
+          albums.push({album: currentAlbum, quantityMusics: index - i})
+          currentAlbum = album.album
           i = index
-          albums.push({album: albumData, quantityMusics: 0})
         }
-        indexEnd = index
+        endIndex = index
       })
-      albums.push({album: albumsData[indexEnd].album, quantityMusics: indexEnd+1-i})
+      albums.push({album: currentAlbum, quantityMusics: endIndex+1-i})
       return albums
     }catch (err){
       if(err.sqlMessage){
