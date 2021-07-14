@@ -54,3 +54,8 @@ export const musicDataToMusic = (musicData : MusicData):Music=>{
     file: musicData.file
   }
 }
+
+export type Album = {
+  album : string,
+  quantityMusics : number
+}

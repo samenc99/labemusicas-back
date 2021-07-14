@@ -1,5 +1,5 @@
 import {MusicDatabase} from "../data/MusicDatabase";
-import {GetMusicQuery, Music, MusicData, musicDataToMusic, MusicDTO, ShortMusic} from "../model/Music";
+import {Album, GetMusicQuery, Music, MusicData, musicDataToMusic, MusicDTO, ShortMusic} from "../model/Music";
 import {IdGenerator} from "../services/IdGenerator";
 import {Authenticator} from "../services/Authenticator";
 import {CustomError} from "../errors/CustomError";
@@ -159,6 +159,36 @@ export class MusicBusiness{
         await this.musicDatabase.deleteGeneric({id:id, user_id:payload.id})
       }
 
+    }catch (err){
+      if(err.sqlMessage){
+        throw new CustomError(500, 'Internal server error')
+      }
+      throw new CustomError(err.statusCode || 500, err.message)
+    }
+  }
+
+  getAlbums = async(token:any):Promise<Album[]>=>{
+    try{
+      const payload = this.authenticator.tokenValidate(token)
+      const albumsData = await this.musicDatabase.selectGeneric('album', {user_id: payload.id})
+        .orderBy('album','asc')
+      if(!albumsData){
+        throw new CustomError(404, 'Albums not found')
+      }
+      const albums : Album[] = []
+      albums.push({album: albumsData[0].album, quantityMusics: 0})
+      let i=0
+      let indexEnd : number = 0
+      albumsData.forEach((albumData, index)=>{ //contar quantas vezes album aparece
+        if(albumData!==albums[albums.length-1].album){
+          albums[albums.length-1].quantityMusics = index - i
+          i = index
+          albums.push({album: albumData, quantityMusics: 0})
+        }
+        indexEnd = index
+      })
+      albums.push({album: albumsData[indexEnd].album, quantityMusics: indexEnd+1-i})
+      return albums
     }catch (err){
       if(err.sqlMessage){
         throw new CustomError(500, 'Internal server error')
