@@ -75,7 +75,7 @@ export class MusicBusiness{
       const payload = this.authenticator.tokenValidate(token)
       const select = ()=>{
         return this.musicDatabase.selectGeneric(
-            ['title','author','id','album'], all?{user_id:payload.id} : {}
+            ['title','author','id','album'], all?{} : {user_id:payload.id}
           )
       }
 
@@ -130,7 +130,7 @@ export class MusicBusiness{
       }
 
       const [musicData] = await this.musicDatabase.selectGeneric(
-        '*', all?{id:id, user_id:payload.id} : {id:id}
+        '*', all?{id:id} : {id:id, user_id:payload.id}
       )
 
       if(!musicData){
