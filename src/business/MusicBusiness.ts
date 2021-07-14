@@ -3,6 +3,7 @@ import {Album, GetMusicQuery, Music, MusicData, musicDataToMusic, MusicDTO, Shor
 import {IdGenerator} from "../services/IdGenerator";
 import {Authenticator} from "../services/Authenticator";
 import {CustomError} from "../errors/CustomError";
+import { Knex } from "knex";
 
 type Mock = {
   musicDatabase ?: any,
@@ -69,40 +70,52 @@ export class MusicBusiness{
   }
 
   getMusics = async(token : any, query : GetMusicQuery, all?: boolean):Promise<ShortMusic[]>=>{
+
     try{
       const payload = this.authenticator.tokenValidate(token)
-      query.album = query.album || ''
-      query.author = query.author || ''
-      query.title = query.title || ''
-
-      let musicsData : any[]
-      if(all){
-        musicsData = await this.musicDatabase
-          .selectGeneric(
-            ['title','author','id', 'album']
+      const select = ()=>{
+        return this.musicDatabase.selectGeneric(
+            ['title','author','id','album'], all?{user_id:payload.id} : {}
           )
-          .where('album', 'like', `%${query.album}%`)
-          .andWhere('author', 'like', `%${query.author}%`)
-          .andWhere('title', 'like', `%${query.title}%`)
       }
-      else{
-        musicsData = await this.musicDatabase
-          .selectGeneric(
-            ['title','author','id', 'album'], {user_id:payload.id}
-          )
-          .andWhere('album', 'like', `%${query.album}%`)
-          .andWhere('author', 'like', `%${query.author}%`)
-          .andWhere('title', 'like', `%${query.title}%`)
+
+      let musicsData : any[] = []
+
+      if(query?.album){
+        const res = await select().orWhere('album', 'like', `%${query.album}%`)
+        if(res){
+          musicsData = [...musicsData, ...res]
+        }
+      }
+      if(query?.author){
+        const res = await select().orWhere('author', 'like', `%${query.author}%`)
+        if(res){
+          musicsData= [...musicsData, ...res]
+        }
+      }
+      if(query?.title){
+        const res = await select().orWhere('title', 'like', `%${query.title}%`)
+        if(res){
+          musicsData= [...musicsData, ...res]
+        }
+      }
+      if(!query || !(query.album || query.author || query.title)){
+        const res = await select()
+        if(res){
+          musicsData= [...musicsData, ...res]
+        }
       }
 
       if(musicsData.length===0){
         throw new CustomError(404, "Songs not found")
       }
 
+      console.log({musicsData}, '\n\n\n\n')
       return musicsData
 
     }catch (err){
       if(err.sqlMessage){
+        console.log({sql: err.sqlMessage})
         throw new CustomError(500, 'Internal server error')
       }
       throw new CustomError(err.statusCode || 500, err.message)
@@ -116,18 +129,9 @@ export class MusicBusiness{
         throw new CustomError(400, 'Id is required')
       }
 
-      let res : any[]
-      if(all){
-        res = await this.musicDatabase.selectGeneric(
-          '*', {id: id}
-        )
-      }
-      else{
-        res = await this.musicDatabase.selectGeneric(
-          '*', {id: id, user_id: payload.id}
-        )
-      }
-      const [musicData] = res
+      const [musicData] = await this.musicDatabase.selectGeneric(
+        '*', all?{id:id, user_id:payload.id} : {id:id}
+      )
 
       if(!musicData){
         throw new CustomError(404,'Music not found')
