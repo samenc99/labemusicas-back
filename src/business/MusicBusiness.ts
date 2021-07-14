@@ -78,7 +78,7 @@ export class MusicBusiness{
         .selectGeneric(
           ['title','author','id', 'album'], {user_id:payload.id}
         )
-        .where('album', 'like', `%${query.album}%`)
+        .andWhere('album', 'like', `%${query.album}%`)
         .andWhere('author', 'like', `%${query.author}%`)
         .andWhere('title', 'like', `%${query.title}%`)
       if(musicsData.length===0){
@@ -95,15 +95,26 @@ export class MusicBusiness{
     }
   }
 
-  getMusic = async(token : any, id : any):Promise<Music>=>{
+  getMusic = async(token : any, id : any, all ?: boolean):Promise<Music>=>{
     try{
       const payload = this.authenticator.tokenValidate(token)
       if(!id || typeof id !=="string"){
         throw new CustomError(400, 'Id is required')
       }
-      const [musicData] = await this.musicDatabase.selectGeneric(
-        '*', {id: id, user_id: payload.id}
-      )
+
+      let res : any[]
+      if(all){
+        res = await this.musicDatabase.selectGeneric(
+          '*', {id: id}
+        )
+      }
+      else{
+        res = await this.musicDatabase.selectGeneric(
+          '*', {id: id, user_id: payload.id}
+        )
+      }
+      const [musicData] = res
+
       if(!musicData){
         throw new CustomError(404,'Music not found')
       }
@@ -115,6 +126,8 @@ export class MusicBusiness{
       throw new CustomError(err.statusCode || 500, err.message)
     }
   }
+
+
 
   deleteMusics = async(token : any, ids : any):Promise<void>=>{
     try{
