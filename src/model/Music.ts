@@ -56,6 +56,6 @@ export const musicDataToMusic = (musicData : MusicData):Music=>{
 }
 
 export type Album = {
-  album : string,
+  title : string,
   quantityMusics : number
 }

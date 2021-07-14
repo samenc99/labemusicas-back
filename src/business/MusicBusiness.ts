@@ -170,23 +170,23 @@ export class MusicBusiness{
   getAlbums = async(token:any):Promise<Album[]>=>{
     try{
       const payload = this.authenticator.tokenValidate(token)
-      const albumsData = await this.musicDatabase.selectGeneric('album', {user_id: payload.id})
+      const albumsData = await this.musicDatabase.selectGeneric('album as  title', {user_id: payload.id})
         .orderBy('album','asc')
       if(!albumsData){
         throw new CustomError(404, 'Albums not found')
       }
       const albums : Album[] = []
       let i =0, endIndex = 0
-      let currentAlbum : string= albumsData[0].album
+      let currentAlbum : string= albumsData[0].title
       albumsData.forEach((album,index)=>{
-        if(currentAlbum!==album.album){
-          albums.push({album: currentAlbum, quantityMusics: index - i})
-          currentAlbum = album.album
+        if(currentAlbum!==album.title){
+          albums.push({title: currentAlbum, quantityMusics: index - i})
+          currentAlbum = album.title
           i = index
         }
         endIndex = index
       })
-      albums.push({album: currentAlbum, quantityMusics: endIndex+1-i})
+      albums.push({title: currentAlbum, quantityMusics: endIndex+1-i})
       return albums
     }catch (err){
       if(err.sqlMessage){
