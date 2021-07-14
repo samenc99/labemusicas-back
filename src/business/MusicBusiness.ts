@@ -68,19 +68,33 @@ export class MusicBusiness{
     }
   }
 
-  getMusics = async(token : any, query : GetMusicQuery):Promise<ShortMusic[]>=>{
+  getMusics = async(token : any, query : GetMusicQuery, all?: boolean):Promise<ShortMusic[]>=>{
     try{
       const payload = this.authenticator.tokenValidate(token)
       query.album = query.album || ''
       query.author = query.author || ''
       query.title = query.title || ''
-      const musicsData = await this.musicDatabase
-        .selectGeneric(
-          ['title','author','id', 'album'], {user_id:payload.id}
-        )
-        .andWhere('album', 'like', `%${query.album}%`)
-        .andWhere('author', 'like', `%${query.author}%`)
-        .andWhere('title', 'like', `%${query.title}%`)
+
+      let musicsData : any[]
+      if(all){
+        musicsData = await this.musicDatabase
+          .selectGeneric(
+            ['title','author','id', 'album']
+          )
+          .where('album', 'like', `%${query.album}%`)
+          .andWhere('author', 'like', `%${query.author}%`)
+          .andWhere('title', 'like', `%${query.title}%`)
+      }
+      else{
+        musicsData = await this.musicDatabase
+          .selectGeneric(
+            ['title','author','id', 'album'], {user_id:payload.id}
+          )
+          .andWhere('album', 'like', `%${query.album}%`)
+          .andWhere('author', 'like', `%${query.author}%`)
+          .andWhere('title', 'like', `%${query.title}%`)
+      }
+
       if(musicsData.length===0){
         throw new CustomError(404, "Songs not found")
       }
