@@ -82,19 +82,19 @@ export class MusicBusiness{
       let musicsData : any[] = []
 
       if(query?.album){
-        const res = await select().orWhere('album', 'like', `%${query.album}%`)
+        const res = await select().andWhere('album', 'like', `%${query.album}%`)
         if(res){
           musicsData = [...musicsData, ...res]
         }
       }
       if(query?.author){
-        const res = await select().orWhere('author', 'like', `%${query.author}%`)
+        const res = await select().andWhere('author', 'like', `%${query.author}%`)
         if(res){
           musicsData= [...musicsData, ...res]
         }
       }
       if(query?.title){
-        const res = await select().orWhere('title', 'like', `%${query.title}%`)
+        const res = await select().andWhere('title', 'like', `%${query.title}%`)
         if(res){
           musicsData= [...musicsData, ...res]
         }
