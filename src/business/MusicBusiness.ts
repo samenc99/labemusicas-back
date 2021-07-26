@@ -178,7 +178,7 @@ export class MusicBusiness{
       const payload = this.authenticator.tokenValidate(token)
       const albumsData = await this.musicDatabase.selectGeneric('album as  title', {user_id: payload.id})
         .orderBy('album','asc')
-      if(!albumsData){
+      if(albumsData.length===0){
         throw new CustomError(404, 'Albums not found')
       }
       const albums : Album[] = []
