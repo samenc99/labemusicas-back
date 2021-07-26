@@ -4,6 +4,7 @@ import {IdGenerator} from "../services/IdGenerator";
 import {Authenticator} from "../services/Authenticator";
 import {CustomError} from "../errors/CustomError";
 import { Knex } from "knex";
+import Database from "../data/Database";
 
 type Mock = {
   musicDatabase ?: any,
@@ -73,44 +74,45 @@ export class MusicBusiness{
 
     try{
       const payload = this.authenticator.tokenValidate(token)
-      const select = ()=>{
-        return this.musicDatabase.selectGeneric(
-            ['title','author','id','album'], all?{} : {user_id:payload.id}
-          )
+
+      const raw = (album:string, author:string, title:string, all: boolean, user_id:string):string=>{
+        let rawTextUserId = 'where'
+        if(!all){
+          rawTextUserId+=` user_id='${user_id}'`
+        }
+
+        let rawText=''
+        if(rawTextUserId.length>6)rawText += ' and ('
+        else rawText+= ' ('
+        if(album)rawText+=`album like '%${album}%'`
+        if(author){
+          if(rawText.length>6)rawText+=' or '
+          rawText+=`author like '%${author}%'`
+        }
+        if(title){
+          if(rawText.length>6)rawText+=' or '
+          rawText+=`title like '%${title}%'`
+        }
+        rawText+=')'
+
+        if(rawTextUserId.length>6 || rawText.length>7){
+          return rawTextUserId + (rawText.length>7? rawText : '')
+        }
+        else return ''
+
       }
 
-      let musicsData : any[] = []
+      const res = await this.musicDatabase.DatabaseConnection().raw(`
+        select title, author, id, album from labemusicas_music
+          ${raw(query.album as string, query.author as string, query.title as string, all as boolean, payload.id)}
+      `)
 
-      if(query?.album){
-        const res = await select().andWhere('album', 'like', `%${query.album}%`)
-        if(res){
-          musicsData = [...musicsData, ...res]
-        }
-      }
-      if(query?.author){
-        const res = await select().andWhere('author', 'like', `%${query.author}%`)
-        if(res){
-          musicsData= [...musicsData, ...res]
-        }
-      }
-      if(query?.title){
-        const res = await select().andWhere('title', 'like', `%${query.title}%`)
-        if(res){
-          musicsData= [...musicsData, ...res]
-        }
-      }
-      if(!query || !(query.album || query.author || query.title)){
-        const res = await select()
-        if(res){
-          musicsData= [...musicsData, ...res]
-        }
-      }
+      const musicsData : any[]= res[0] || []
 
       if(musicsData.length===0){
         throw new CustomError(404, "Songs not found")
       }
 
-      console.log({musicsData}, '\n\n\n\n')
       return musicsData
 
     }catch (err){

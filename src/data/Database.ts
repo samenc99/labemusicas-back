@@ -40,4 +40,8 @@ export default class Database{
       .where(where)
   }
 
+  public DatabaseConnection = ()=>{
+    return Database.connection
+  }
+
 }
